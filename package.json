@@ -1,0 +1,24 @@
+{
+  "name": "vue-cli-plugin-django-integration",
+  "version": "0.1.0",
+  "description": "Vue CLI 3.x plugin to integrate Django and Vue",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/felipe-lee/vue-cli-plugin-django-integration.git"
+  },
+  "keywords": [
+    "vue",
+    "vue-cli",
+    "django"
+  ],
+  "author": "Felipe Lee <felipe.lee.garcia@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/felipe-lee/vue-cli-plugin-django-integration/issues"
+  },
+  "homepage": "https://github.com/felipe-lee/vue-cli-plugin-django-integration#readme"
+}
