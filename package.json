@@ -1,6 +1,6 @@
 {
   "name": "vue-cli-plugin-django-integration",
-  "version": "0.1.0-alpha",
+  "version": "0.1.1-alpha",
   "description": "Vue CLI 3.x plugin to integrate Django and Vue",
   "main": "index.js",
   "scripts": {
