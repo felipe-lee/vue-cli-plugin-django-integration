@@ -4,10 +4,7 @@ Vue CLI 3.x plugin to integrate Django and Vue
 
 [![vue-cli3](https://img.shields.io/badge/vue--cli-3.x-brightgreen.svg)](https://github.com/vuejs/vue-cli)
 
-:warning: 
-<aside class="warning">
-  This is in development and not ready for use.
-</aside>
+:warning: This is in development and not ready for use.
 
 ## Getting Started
 
