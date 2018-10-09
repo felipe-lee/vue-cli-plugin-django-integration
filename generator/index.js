@@ -21,6 +21,10 @@ function setUpRequirementsFile(filePath, djangoVersion) {
     contentArray = content.trim().split("\n");
 
     for (let i = 0; i < contentArray.length; i++) {
+      if (contentArray[i].startsWith("#")) {
+        continue;
+      }
+
       let pythonPackage = contentArray[i].toLowerCase().replace(/[^a-z]/g, "");
 
       if (pythonPackage === "django") {
