@@ -167,6 +167,31 @@ function setUpVirtualEnvironment(
   return djangoInstalled;
 }
 
+/**
+ * Creates a django project
+ * @param {string} venvPath - Path to venv.
+ * @param {string} projectName - Name of project to create (should probably match overall project name).
+ * @returns {boolean} Indicates if django project was created.
+ */
+function createDjangoProject(venvPath, projectName) {
+  exec(
+    `source ${venvPath}/bin/activate && django-admin startproject ${projectName} .`,
+    (error, stdout, stderr) => {
+      if (error === null) {
+        return true;
+      } else {
+        console.log("Unable to create Django project. Error: ", error);
+      }
+
+      console.log("django create stdout: ", stdout);
+
+      if (stderr) {
+        console.log("django create stderr: ", stderr);
+      }
+    }
+  );
+}
+
 module.exports = (
   api,
   { djangoVersion, pythonVersion, virtualEnv, venvPath },
@@ -188,5 +213,13 @@ module.exports = (
       venvPath,
       requirementsFile
     );
+
+    let djangoProjectCreated = false;
+    if (djangoInstalled) {
+      djangoProjectCreated = createDjangoProject(
+        venvPath,
+        rootOptions.projectName
+      );
+    }
   });
 };
