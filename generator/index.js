@@ -145,7 +145,7 @@ function setUpVirtualEnvironment(
 
   let djangoInstalled = false;
   exec(
-    `source ${venvPath}/bin/activate && pip install -r ${requirementsFile}`,
+    `source ${venvPath}/Scripts/activate && pip install -r ${requirementsFile}`,
     (error, stdout, stderr) => {
       if (error === null) {
         djangoInstalled = true;
