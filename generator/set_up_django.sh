@@ -78,7 +78,7 @@ set_up_venv() {
 }
 
 create_django_project() {
-  django-admin startproject ${project_name} .
+  django-admin startproject ${project_name} ${project_dir}
 }
 
 ##### Input
