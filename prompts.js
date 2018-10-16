@@ -26,47 +26,18 @@ module.exports = [
     ]
   },
   {
-    name: "pythonVersion",
-    type: "list",
+    name: "pythonCommand",
+    type: "input",
     message:
-      "Pick the version of Python you are going to use (it needs to already be installed):",
-    default: "3",
-    choices: [
-      {
-        name: "3",
-        value: "3",
-        short: "3"
-      },
-      {
-        name: "2",
-        value: "2",
-        short: "2"
-      }
-    ]
+      "Enter the command you type to use the python interpreter you want to use for a virtual environment (e.g. python, py3, etc.):",
+    default: "python"
   },
   {
-    name: "virtualEnv",
-    type: "list",
+    name: "createVenv",
+    type: "confirm",
     message:
-      "Do you want a python virtual environment to be set up or does one already exist?",
-    default: "yes",
-    choices: [
-      {
-        name: "Yes.",
-        value: "yes",
-        short: "yes"
-      },
-      {
-        name: "No, the project already has one.",
-        value: "exists",
-        short: "exists"
-      },
-      {
-        name: "No, the project doesn't need a virtual environment.",
-        value: "no",
-        short: "no"
-      }
-    ]
+      "Do you want a python virtual environment to be set up (if not, it is assumed one exists)?",
+    default: true
   },
   {
     name: "venvPath",
