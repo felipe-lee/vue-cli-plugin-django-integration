@@ -1,6 +1,7 @@
 // Generator that creates/modifies files as needed.
-const exec = require("child_process").exec;
+const { exec, execFile, spawn } = require("child_process");
 const fs = require("fs");
+const path = require("path");
 
 /**
  * Sets up a requirements.txt file, or modifies an existing one to include the
@@ -47,154 +48,60 @@ function setUpRequirementsFile(filePath, djangoVersion) {
 }
 
 /**
- * Sets up a python virtual environment and activates it.
- * @param {string} pythonVersion - Major python version, i.e. 2 or 3.
- * @param {string} virtualEnv - Switch indicating if a venv should be created or already exists.
- *   Possible values: "yes", "exists", "no".
+ * Sets up a python virtual environment (if one doesn't exist already), activates it, and installs requirements.
+ * @param {string} projectName - Name of django project to create
+ * @param {string} projectDir - Path to directory in which django project should be created.
+ * @param {string} pythonCommand - Command used to run the version of python that should be used for the venv.
+ * @param {boolean} createVenv - Boolean indicating if a venv should be created. If false, then it is assumed one exists
  * @param {string} venvPath - Path to where venv should be created, or to existing venv.
  * @param {string} requirementsFile - Path to requirements.txt file.
  * @returns {boolean} Indicates if venv is set up and django has been installed.
  */
-function setUpVirtualEnvironment(
-  pythonVersion,
-  virtualEnv,
+function setUpDjango(
+  projectName,
+  projectDir,
+  pythonCommand,
+  createVenv,
   venvPath,
   requirementsFile
 ) {
-  if (virtualEnv === "no") {
-    // Not using a venv, no point in continuing.
-    return false;
+  let djangoSetUp = false;
+
+  let options = [
+    `-n ${projectName}`,
+    `-d ${projectDir}`,
+    `-p ${pythonCommand}`
+  ];
+
+  if (!createVenv) {
+    options.push(" -e");
   }
 
-  let venvCommand = "";
-  let venvCreated = false;
+  options.push(`-l ${venvPath}`);
+  options.push(`-r ${requirementsFile}`);
 
-  if (virtualEnv === "yes") {
-    let venvCreatorAvailable = false;
-
-    // If we are using python 3, it has a built in virtual environment creator so we don't need to install one.
-    // For python 2, we'll install/use virtualvenv.
-    if (pythonVersion === "3") {
-      venvCreatorAvailable = true;
-
-      let pythonCommand = "python";
-
-      exec(
-        'python -c "import platform; print(platform.python_version())"',
-        (error, stdout, stderr) => {
-          // Not going to care about errors here because they'll be caught later when we try to create the venv.
-
-          let mainPythonVersion = parseInt(stdout);
-
-          if (mainPythonVersion !== 3) {
-            pythonCommand = "python3";
-          }
-        }
+  let shPath = path.resolve(__dirname, "./set_up_django.sh");
+  execFile(shPath, options, (error, stdout, stderr) => {
+    if (error === null) {
+      djangoSetUp = true;
+    } else {
+      console.log(
+        "Unable to set up django; you will have to set it up. Error: ",
+        error
       );
-
-      venvCommand = `${pythonCommand} -m venv ${venvPath}`;
-    } else if (pythonVersion === "2") {
-      exec("pip install virtualenv", (error, stdout, stderr) => {
-        if (error === null) {
-          venvCreatorAvailable = true;
-
-          venvCommand = `virtualenv ${venvPath}`;
-        } else {
-          console.log(
-            "Unable to install virtualenv; you will have to set it up. Error: ",
-            error
-          );
-        }
-
-        console.log("virtualenv install stdout", stdout);
-
-        if (stderr) {
-          console.log("virtualenv install stderr", stderr);
-        }
-      });
     }
 
-    if (!venvCreatorAvailable) {
-      // Won't be able to create the venv, so nothing else to do.
-      return false;
+    console.log("virtualenv install stdout", stdout);
+
+    if (stderr) {
+      console.log("virtualenv install stderr", stderr);
     }
-
-    exec(venvCommand, (error, stdout, stderr) => {
-      if (error === null) {
-        venvCreated = true;
-      } else {
-        console.log(
-          "Unable to create virtual environment; you will have set it up. Error: ",
-          error
-        );
-        console.log("Error creating virtual environment: ", error);
-      }
-
-      console.log("venv setup stdout", stdout);
-
-      if (stderr) {
-        console.log("venv setup stderr", stderr);
-      }
-    });
-  }
-
-  if (!(venvCreated || virtualEnv === "exists")) {
-    // Not able to use a venv so might as well escape.
-    return false;
-  }
-
-  let djangoInstalled = false;
-  exec(
-    `source ${venvPath}/Scripts/activate && pip install -r ${requirementsFile}`,
-    (error, stdout, stderr) => {
-      if (error === null) {
-        djangoInstalled = true;
-      } else {
-        console.log(
-          "Unable to install django; you will have to set it up. Error: ",
-          error
-        );
-      }
-
-      console.log("req install stdout", stdout);
-
-      if (stderr) {
-        console.log("req install stderr", stderr);
-      }
-    }
-  );
-
-  return djangoInstalled;
-}
-
-/**
- * Creates a django project
- * @param {string} venvPath - Path to venv.
- * @param {string} projectName - Name of project to create (should probably match overall project name).
- * @returns {boolean} Indicates if django project was created.
- */
-function createDjangoProject(venvPath, projectName) {
-  exec(
-    `source ${venvPath}/bin/activate && django-admin startproject ${projectName} .`,
-    (error, stdout, stderr) => {
-      if (error === null) {
-        return true;
-      } else {
-        console.log("Unable to create Django project. Error: ", error);
-      }
-
-      console.log("django create stdout: ", stdout);
-
-      if (stderr) {
-        console.log("django create stderr: ", stderr);
-      }
-    }
-  );
+  });
 }
 
 module.exports = (
   api,
-  { djangoVersion, pythonVersion, virtualEnv, venvPath },
+  { djangoVersion, pythonCommand, createVenv, venvPath },
   rootOptions
 ) => {
   console.log("api (generator): ", api);
@@ -207,19 +114,13 @@ module.exports = (
 
     venvPath = api.resolve(venvPath);
 
-    let djangoInstalled = setUpVirtualEnvironment(
-      pythonVersion,
-      virtualEnv,
+    let djangoSetUp = setUpDjango(
+      rootOptions.projectName,
+      ".",
+      pythonCommand,
+      createVenv,
       venvPath,
       requirementsFile
     );
-
-    let djangoProjectCreated = false;
-    if (djangoInstalled) {
-      djangoProjectCreated = createDjangoProject(
-        venvPath,
-        rootOptions.projectName
-      );
-    }
   });
 };
