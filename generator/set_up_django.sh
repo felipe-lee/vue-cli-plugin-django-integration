@@ -64,7 +64,15 @@ create_venv() {
 }
 
 set_up_venv() {
-  source ${venv_path}Scripts/activate
+  if [ -f ${venv_path}/Scripts/activate ]; then
+    venv_activation_path=${venv_path}/Scripts/activate
+  elif [ -f ${venv_path}/bin/activate ]; then
+    venv_activation_path=${venv_path}/bin/activate
+  else
+    error_exit "Cannot find activation script for venv"
+  fi
+
+  source ${venv_activation_path}
 
   if [ "$?" != "0" ]; then
     error_exit "Unable to activate virtual environment; could not find activation script as expected in ${venv_path}Scripts/activate"
