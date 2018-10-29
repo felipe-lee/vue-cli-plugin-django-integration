@@ -87,6 +87,10 @@ set_up_venv() {
 
 create_django_project() {
   django-admin startproject ${project_name} ${project_dir}
+
+  if [ "$?" != "0" ]; then
+    error_exit "Unable to create django project"
+  fi
 }
 
 ##### Input
