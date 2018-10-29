@@ -28,6 +28,7 @@ __EOF__
 clean_up() {
   # perform program exit housekeeping
   # optionally accepts an exit status
+  sleep 30s  # give users chance to read message
   exit $1
 }
 
@@ -94,6 +95,8 @@ create_django_project() {
 }
 
 ##### Input
+
+echo "Setting up python venv and Django"
 
 project_name=
 project_dir=
@@ -180,3 +183,6 @@ fi
 set_up_venv
 
 create_django_project
+
+echo "Done setting up django"
+sleep 15s
