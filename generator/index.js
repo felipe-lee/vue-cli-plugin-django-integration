@@ -66,8 +66,6 @@ function setUpDjango(
   venvPath,
   requirementsFile
 ) {
-  let djangoSetUp = false;
-
   let options = [
     `-n ${projectName}`,
     `-d ${projectDir}`,
@@ -85,25 +83,20 @@ function setUpDjango(
 
   const scriptRun = spawnSync(shPath, options, { shell: true });
 
-  console.log(`script stdout: ${scriptRun.stdout}`);
-  console.log(`script stderr: ${scriptRun.stderr}`);
-  console.log(`script error: ${scriptRun.error}`);
-  execFile(shPath, options, (error, stdout, stderr) => {
-    if (error === null) {
-      djangoSetUp = true;
-    } else {
-      console.log(
-        "Unable to set up django; you will have to set it up. Error: ",
-        error
-      );
-    }
+  if (scriptRun.error !== null) {
+    console.log(
+      `Unable to set up django; you will have to set it up. Error: : ${
+        scriptRun.error
+      }`
+    );
 
-    console.log("virtualenv install stdout", stdout);
+    console.log(`script stdout: ${scriptRun.stdout}`);
+    console.log(`script stderr: ${scriptRun.stderr}`);
 
-    if (stderr) {
-      console.log("virtualenv install stderr", stderr);
-    }
-  });
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -306,7 +299,7 @@ module.exports = (
     setUpRequirementsFile(requirementsFile, djangoVersion);
 
     venvPath = api.resolve(venvPath);
-    // console.log(`api context: ${api.generator.context}`);
+
     // let djangoSetUp = setUpDjango(
     //   rootOptions.projectName,
     //   api.generator.context,
