@@ -1,5 +1,5 @@
 // Generator that creates/modifies files as needed.
-const { execSync, spawnSync } = require("child_process");
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -46,57 +46,6 @@ function setUpRequirementsFile(filePath, djangoVersion) {
   content = contentArray.join("\n");
 
   fs.writeFileSync(filePath, content, { encoding: "utf-8" });
-}
-
-/**
- * Sets up a python virtual environment (if one doesn't exist already), activates it, and installs requirements.
- * @param {string} projectName - Name of django project to create
- * @param {string} projectDir - Path to directory in which django project should be created.
- * @param {string} pythonCommand - Command used to run the version of python that should be used for the venv.
- * @param {boolean} createVenv - Boolean indicating if a venv should be created. If false, then it is assumed one exists
- * @param {string} venvPath - Path to where venv should be created, or to existing venv.
- * @param {string} requirementsFile - Path to requirements.txt file.
- * @returns {boolean} Indicates if venv is set up and django has been installed.
- */
-function setUpDjango(
-  projectName,
-  projectDir,
-  pythonCommand,
-  createVenv,
-  venvPath,
-  requirementsFile
-) {
-  let options = [
-    `-n ${projectName}`,
-    `-d ${projectDir}`,
-    `-p ${pythonCommand}`
-  ];
-
-  if (!createVenv) {
-    options.push(" -e");
-  }
-
-  options.push(`-l ${venvPath}`);
-  options.push(`-r ${requirementsFile}`);
-
-  let shPath = path.resolve(__dirname, "./set_up_django.sh");
-
-  const scriptRun = spawnSync(shPath, options, { shell: true });
-
-  if (scriptRun.error !== null) {
-    console.log(
-      `Unable to set up django; you will have to set it up. Error: : ${
-        scriptRun.error
-      }`
-    );
-
-    console.log(`script stdout: ${scriptRun.stdout}`);
-    console.log(`script stderr: ${scriptRun.stderr}`);
-
-    return false;
-  }
-
-  return true;
 }
 
 /**
@@ -299,16 +248,6 @@ module.exports = (
     setUpRequirementsFile(requirementsFile, djangoVersion);
 
     venvPath = api.resolve(venvPath);
-
-    // let djangoSetUp = setUpDjango(
-    //   rootOptions.projectName,
-    //   api.generator.context,
-    //   pythonCommand,
-    //   createVenv,
-    //   venvPath,
-    //   requirementsFile
-    // );
-    // return;
 
     if (createVenv === true) {
       console.log("creating up venv");
