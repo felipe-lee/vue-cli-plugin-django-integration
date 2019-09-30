@@ -29,7 +29,7 @@
     "eslint-plugin-html": "^4.0.6",
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-prettier": "^3.0.0",
-    "husky": "^1.1.1",
+    "husky": "^3.0.7",
     "lint-staged": "^7.3.0",
     "prettier": "^1.14.3"
   },
